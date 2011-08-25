@@ -1,0 +1,229 @@
+package de.jungblut.antcolony;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.LinkedList;
+import java.util.Random;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorCompletionService;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+public final class AntColonyOptimization {
+
+	public static final double ALPHA = 0.5d;
+	public static final double BETA = 0.5d;
+	public static final double Q = 0.5d;
+	public static final double PHEROMONE_PERSISTENCE = 0.5d;
+	
+	// use power of 2
+	public static final int numOfAgents = 512;
+	private static final int poolSize = 8;
+	private static final int progressReportModulo = 64;
+
+	private static final Random random = new Random(System.currentTimeMillis());
+
+	private static final double initialPheromone = 0.1d;
+
+	private static final ExecutorService threadPool = Executors
+			.newFixedThreadPool(poolSize);
+
+	private static final ExecutorCompletionService<Double> agentCompletionService = new ExecutorCompletionService<Double>(
+			threadPool);
+
+	final double[][] matrix;
+	final double[][] invertedMatrix;
+	final double[][] pheromones;
+	private final Object[][] mutexes;
+
+	public AntColonyOptimization() throws IOException {
+		// read the matrix
+		matrix = readMatrixFromFile();
+		invertedMatrix = invertMatrix();
+		pheromones = initializePheromones();
+		mutexes = initializeMutexObjects();
+	}
+
+	// private final ReentrantLock[][] initializeMutexes() {
+	// final ReentrantLock[][] localMatrix = new
+	// ReentrantLock[matrix.length][matrix.length];
+	// int rows = matrix.length;
+	// for (int columns = 0; columns < matrix.length; columns++) {
+	// for (int i = 0; i < rows; i++) {
+	// localMatrix[columns][i] = new ReentrantLock();
+	// }
+	// }
+	//
+	// return localMatrix;
+	// }
+
+	// private final void adjustPheromoneBetter(int x, int y, double
+	// newPheromone) {
+	// mutexes[x][y].tryLock();
+	// pheromones[x][y] = newPheromone;
+	// mutexes[x][y].unlock();
+	// }
+
+	private final Object[][] initializeMutexObjects() {
+		final Object[][] localMatrix = new Object[matrix.length][matrix.length];
+		int rows = matrix.length;
+		for (int columns = 0; columns < matrix.length; columns++) {
+			for (int i = 0; i < rows; i++) {
+				localMatrix[columns][i] = new Object();
+			}
+		}
+
+		return localMatrix;
+	}
+
+	// TODO
+//	final double readPheromone(int x, int y) {
+//		double p;
+//		synchronized (mutexes[x][y]) {
+//			p = pheromones[x][y];
+//		}
+//		return p;
+//	}
+
+	final void adjustPheromone(int x, int y, double newPheromone) {
+		synchronized (mutexes[x][y]) {
+			pheromones[x][y] = newPheromone;
+		}
+	}
+
+	private final double[][] initializePheromones() {
+		final double[][] localMatrix = new double[matrix.length][matrix.length];
+		int rows = matrix.length;
+		for (int columns = 0; columns < matrix.length; columns++) {
+			for (int i = 0; i < rows; i++) {
+				localMatrix[columns][i] = initialPheromone;
+			}
+		}
+
+		return localMatrix;
+	}
+
+	private final double[][] readMatrixFromFile() throws IOException {
+
+		final BufferedReader br = new BufferedReader(new FileReader(new File(
+				"files/berlin52.tsp")));
+
+		final LinkedList<Record> records = new LinkedList<Record>();
+
+		boolean readAhead = false;
+		String line;
+		while ((line = br.readLine()) != null) {
+
+			if (line.equals("EOF")) {
+				break;
+			}
+
+			if (readAhead) {
+				String[] split = line.split(" ");
+				records.add(new Record(Double.parseDouble(split[1]), Double
+						.parseDouble(split[2])));
+			}
+
+			if (line.equals("NODE_COORD_SECTION")) {
+				readAhead = true;
+			}
+		}
+
+		br.close();
+
+		final double[][] localMatrix = new double[records.size()][records
+				.size()];
+
+		int rIndex = 0;
+		for (Record r : records) {
+			int hIndex = 0;
+			for (Record h : records) {
+				localMatrix[rIndex][hIndex] = calculateEuclidianDistance(r.x,
+						r.y, h.x, h.y);
+				hIndex++;
+			}
+			rIndex++;
+		}
+
+		return localMatrix;
+	}
+
+	private final double[][] invertMatrix() {
+		double[][] local = new double[matrix.length][matrix.length];
+		for (int i = 0; i < matrix.length; i++) {
+			for (int j = 0; j < matrix.length; j++) {
+				local[i][j] = invertDouble(matrix[i][j]);
+			}
+		}
+		return local;
+	}
+
+	private final double invertDouble(double distance) {
+		if (distance == 0)
+			return 0;
+		else
+			return 1.0d / distance;
+	}
+
+	private final double calculateEuclidianDistance(double x1, double y1,
+			double x2, double y2) {
+		return (Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2)));
+	}
+
+	private final void start() throws InterruptedException, ExecutionException {
+
+		double bestDistance = Double.MAX_VALUE;
+
+		int agentsSend = 0;
+		for (int agentNumber = 0; agentNumber < numOfAgents; agentNumber++) {
+			agentCompletionService.submit(new Agent(this,
+					getGaussianDistributionRowIndex()));
+			agentsSend++;
+		}
+
+		System.out.println("Waiting for " + agentsSend
+				+ " agents to finish their random walk!");
+
+		for (int i = 0; i < agentsSend; i++) {
+			double dist = agentCompletionService.take().get();
+			if (dist < bestDistance) {
+				bestDistance = dist;
+				System.out.println("Agent returned with new bestdistance of: "
+						+ dist);
+			}
+			if (i % progressReportModulo == 0) {
+				System.out.println(i + " agents of " + agentsSend
+						+ " already returned!");
+			}
+		}
+		threadPool.shutdownNow();
+		System.out.println("Found best so far: " + bestDistance);
+	}
+
+	private final int getGaussianDistributionRowIndex() {
+		return random.nextInt(matrix.length);
+	}
+
+	class Record {
+		double x;
+		double y;
+
+		public Record(double x, double y) {
+			super();
+			this.x = x;
+			this.y = y;
+		}
+	}
+
+	public static void main(String[] args) throws IOException,
+			InterruptedException, ExecutionException {
+		long start = System.currentTimeMillis();
+		AntColonyOptimization antColonyOptimization = new AntColonyOptimization();
+		antColonyOptimization.start();
+		System.out.println("Took: " + (System.currentTimeMillis() - start)
+				+ " ms!");
+	}
+
+}
