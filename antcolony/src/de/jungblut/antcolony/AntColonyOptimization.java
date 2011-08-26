@@ -10,7 +10,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
 public final class AntColonyOptimization {
 
@@ -21,15 +20,14 @@ public final class AntColonyOptimization {
 
 	// use power of 2
 	public static final int numOfAgents = 64;
-	private static final int poolSize = 8;
-	private static final int progressReportModulo = 8;
+	private static final int poolSize = Runtime.getRuntime().availableProcessors();
+	private static final int progressReportModulo = numOfAgents / 16;
 
 	private static final Random random = new Random(System.currentTimeMillis());
 
 	private static final double initialPheromone = 0.1d;
 
-	private static final ExecutorService threadPool = Executors
-			.newFixedThreadPool(poolSize);
+	private static final ExecutorService threadPool = Executors.newFixedThreadPool(poolSize);
 
 	private static final ExecutorCompletionService<Double> agentCompletionService = new ExecutorCompletionService<Double>(
 			threadPool);
@@ -87,8 +85,7 @@ public final class AntColonyOptimization {
 
 	private final double[][] readMatrixFromFile() throws IOException {
 
-		final BufferedReader br = new BufferedReader(new FileReader(new File(
-				"files/berlin52.tsp")));
+		final BufferedReader br = new BufferedReader(new FileReader(new File("files/berlin52.tsp")));
 
 		final LinkedList<Record> records = new LinkedList<Record>();
 
@@ -102,8 +99,7 @@ public final class AntColonyOptimization {
 
 			if (readAhead) {
 				String[] split = line.split(" ");
-				records.add(new Record(Double.parseDouble(split[1]), Double
-						.parseDouble(split[2])));
+				records.add(new Record(Double.parseDouble(split[1]), Double.parseDouble(split[2])));
 			}
 
 			if (line.equals("NODE_COORD_SECTION")) {
@@ -113,15 +109,13 @@ public final class AntColonyOptimization {
 
 		br.close();
 
-		final double[][] localMatrix = new double[records.size()][records
-				.size()];
+		final double[][] localMatrix = new double[records.size()][records.size()];
 
 		int rIndex = 0;
 		for (Record r : records) {
 			int hIndex = 0;
 			for (Record h : records) {
-				localMatrix[rIndex][hIndex] = calculateEuclidianDistance(r.x,
-						r.y, h.x, h.y);
+				localMatrix[rIndex][hIndex] = calculateEuclidianDistance(r.x, r.y, h.x, h.y);
 				hIndex++;
 			}
 			rIndex++;
@@ -147,8 +141,7 @@ public final class AntColonyOptimization {
 			return 1.0d / distance;
 	}
 
-	private final double calculateEuclidianDistance(double x1, double y1,
-			double x2, double y2) {
+	private final double calculateEuclidianDistance(double x1, double y1, double x2, double y2) {
 		return (Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2)));
 	}
 
@@ -159,36 +152,29 @@ public final class AntColonyOptimization {
 		int agentsSend = 0;
 		int agentsDone = 0;
 		for (int agentNumber = 0; agentNumber < numOfAgents; agentNumber++) {
-			agentCompletionService.submit(new Agent(this,
-					getGaussianDistributionRowIndex()));
+			agentCompletionService.submit(new Agent(this, getGaussianDistributionRowIndex()));
 			agentsSend++;
-			final Future<Double> dist = agentCompletionService.poll();
-			if (dist != null) {
-				final double distance = dist.get();
-				if (distance < bestDistance) {
-					bestDistance = distance;
-					System.out
-							.println("Agent returned with new bestdistance of: "
-									+ dist);
+			if (agentsSend % poolSize == 0) {
+				double dist = agentCompletionService.take().get();
+				if (dist < bestDistance) {
+					bestDistance = dist;
+					System.out.println("Agent returned with new bestdistance of: " + dist);
 				}
 				agentsDone++;
 			}
 		}
-		
-		final int left = agentsSend-agentsDone;
-		System.out.println("Waiting for " + left
-				+ " agents to finish their random walk!");
+
+		final int left = agentsSend - agentsDone;
+		System.out.println("Waiting for " + left + " agents to finish their random walk!");
 
 		for (int i = 0; i < left; i++) {
 			double dist = agentCompletionService.take().get();
 			if (dist < bestDistance) {
 				bestDistance = dist;
-				System.out.println("Agent returned with new bestdistance of: "
-						+ dist);
+				System.out.println("Agent returned with new bestdistance of: " + dist);
 			}
 			if (i % progressReportModulo == 0) {
-				System.out.println(i + " agents of " + agentsSend
-						+ " already returned!");
+				System.out.println(i + " agents of " + agentsSend + " already returned!");
 			}
 		}
 		threadPool.shutdownNow();
@@ -199,7 +185,7 @@ public final class AntColonyOptimization {
 		return random.nextInt(matrix.length);
 	}
 
-	class Record {
+	static class Record {
 		double x;
 		double y;
 
@@ -210,13 +196,12 @@ public final class AntColonyOptimization {
 		}
 	}
 
-	public static void main(String[] args) throws IOException,
-			InterruptedException, ExecutionException {
+	public static void main(String[] args) throws IOException, InterruptedException,
+			ExecutionException {
 		long start = System.currentTimeMillis();
 		AntColonyOptimization antColonyOptimization = new AntColonyOptimization();
 		antColonyOptimization.start();
-		System.out.println("Took: " + (System.currentTimeMillis() - start)
-				+ " ms!");
+		System.out.println("Took: " + (System.currentTimeMillis() - start) + " ms!");
 	}
 
 }
