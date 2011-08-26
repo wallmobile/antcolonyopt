@@ -15,16 +15,16 @@ import java.util.concurrent.Executors;
 public final class AntColonyOptimization {
 
 	// greedy
-	public static final double ALPHA = 0.5d;
+	public static final double ALPHA = 0.0001d;
 	// rapid selection
 	public static final double BETA = 0.5d;
 	// heuristic parameter
-	public static final double Q = 0.5d;
+	public static final double Q = 0.1d;
 	public static final double PHEROMONE_PERSISTENCE = 0.5d;
 	private static final double INITIAL_PHEROMONES = 0.5d;
 
 	// use power of 2
-	public static final int numOfAgents = 512;
+	public static final int numOfAgents = 64;
 	private static final int poolSize = Runtime.getRuntime()
 			.availableProcessors();
 
