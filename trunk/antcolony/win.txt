@@ -1,11 +1,25 @@
 Optimal distance (in heidelberg) is: 7544.365901904087
 
-parallel:
-Found best so far: 8207.60888464683
-[37, 39, 36, 38, 35, 34, 33, 43, 45, 47, 23, 4, 14, 5, 3, 24, 11, 27, 26, 25, 46, 12, 13, 51, 10, 50, 32, 42, 9, 8, 7, 40, 18, 44, 31, 48, 0, 21, 30, 17, 2, 16, 20, 22, 19, 49, 15, 28, 29, 41, 6, 1]
-Took: 523 ms!
-
-sequential: (threadpool size = 1)
 Found best so far: 8182.1915557256725
 [39, 37, 36, 38, 35, 34, 33, 43, 45, 47, 23, 4, 14, 5, 3, 24, 11, 27, 26, 25, 46, 12, 13, 51, 10, 50, 32, 42, 9, 8, 7, 40, 18, 44, 31, 48, 0, 21, 30, 17, 2, 16, 20, 22, 19, 49, 15, 28, 29, 41, 6, 1]
-Took: 21103 ms!
+Took: 296 ms!
+
+With:
+
+	// greedy
+	public static final double ALPHA = 0.0001d;
+	// rapid selection
+	public static final double BETA = 0.5d;
+
+	// heuristic parameters
+	public static final double Q = 0.1d;
+	public static final double PHEROMONE_PERSISTENCE = 0.001d;
+	public static final double BOOST_DISTANCE = 2d;
+	public static final double INITIAL_PHEROMONES = 0.5d;
+
+	// use power of 2
+	public static final int numOfAgents = 32;
+	private static final int poolSize = Runtime.getRuntime()
+			.availableProcessors();
+			
+-> Core i7, 8 Threads, 2,6GHZ
