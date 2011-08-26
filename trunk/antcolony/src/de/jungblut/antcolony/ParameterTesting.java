@@ -16,8 +16,27 @@ public class ParameterTesting {
 	public static void main(String[] args) throws IOException,
 			InterruptedException, ExecutionException {
 
-		alphatesting();
-		betatesting();
+//		alphatesting();
+//		betatesting();
+		initPheroTest();
+	}
+
+	private static void initPheroTest() throws IOException, InterruptedException, ExecutionException {
+		double bestAlpha = -10.0d;
+		double bestResult = Double.MAX_VALUE;
+		for (double i = -10.0d; i <= 10.0d; i += 0.1d) {
+			System.out.println("Testing: " + i);
+			AntColonyOptimization opt = new AntColonyOptimization();
+			AntColonyOptimization.PHEROMONE_PERSISTENCE = i;
+			double result = opt.start();
+			if (result < bestResult) {
+				bestAlpha = i;
+				bestResult = result;
+			}
+			System.out.println("Best phero found was: " + bestAlpha);
+		}
+
+		System.out.println("Best phero found was: " + bestAlpha);
 	}
 
 	public static void alphatesting() throws IOException, InterruptedException,
