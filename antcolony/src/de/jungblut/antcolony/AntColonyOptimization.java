@@ -15,19 +15,18 @@ import java.util.concurrent.Executors;
 public final class AntColonyOptimization {
 
 	// greedy
-	public static double ALPHA = -1.5d; // 0 -> 10 in 0.1 steps
+	public static double ALPHA = -1.5d;
 	// rapid selection
-	public static double BETA = 1.5d; // 0 -> +10 in 0.1 steps
+	public static double BETA = 1.5d;
 
 	// heuristic parameters
-	public static double Q = 0.0001d; // somewhere between 0 and 1
+	public static double Q = 0.5d; // somewhere between 0 and 1
 	public static double PHEROMONE_PERSISTENCE = 0.1d; // between 0 and 1
 	public static double INITIAL_PHEROMONES = 0.5d; // can be anything
 
 	// use power of 2
-	public static final int numOfAgents = 2048;
-	private static final int poolSize = 1;
-	// Runtime.getRuntime().availableProcessors();
+	public static final int numOfAgents = 1024;
+	private static final int poolSize = Runtime.getRuntime().availableProcessors();
 
 	private static final Random random = new Random(System.currentTimeMillis());
 
@@ -216,11 +215,7 @@ public final class AntColonyOptimization {
 		threadPool.shutdownNow();
 		System.out.println("Found best so far: " + bestDistance.distance);
 		System.out.println(Arrays.toString(bestDistance.way));
-		System.out.println("Pheromones Array:");
 
-		for (int i = 0; i < pheromones.length; i++) {
-			System.out.println(Arrays.toString(pheromones[i]));
-		}
 		return bestDistance.distance;
 
 	}
