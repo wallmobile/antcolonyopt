@@ -18,7 +18,7 @@ public class SolutionReader {
 	public static void main(String[] args) throws NumberFormatException,
 			IOException {
 		final BufferedReader br = new BufferedReader(new FileReader(new File(
-				"files/my.tsp")));
+				"files/heidelberg.tsp")));
 
 		final ArrayList<Record> records = new ArrayList<Record>();
 
