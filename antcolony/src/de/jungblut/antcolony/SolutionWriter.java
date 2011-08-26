@@ -20,10 +20,10 @@ public class SolutionWriter {
 	public static void main(String[] args) throws NumberFormatException,
 			IOException {
 
-		int[] arr = new int[] { 0, 21, 30, 17, 2, 16, 20, 41, 6, 1, 29, 22, 19,
-				49, 15, 28, 46, 25, 26, 27, 11, 50, 10, 51, 13, 12, 32, 42, 9,
-				8, 7, 40, 18, 44, 31, 48, 35, 34, 33, 38, 39, 37, 36, 47, 23,
-				4, 14, 5, 3, 24, 45, 43 };
+		int[] arr = new int[] { 1, 49, 32, 45, 19, 41, 8, 9, 10, 43, 33, 51,
+				11, 52, 14, 13, 47, 26, 27, 28, 12, 25, 4, 6, 15, 5, 24, 48,
+				38, 37, 40, 39, 36, 35, 34, 44, 46, 16, 29, 50, 20, 23, 30, 2,
+				7, 42, 21, 17, 3, 18, 31, 22 };
 
 		final BufferedReader br = new BufferedReader(new FileReader(new File(
 				"files/berlin52.tsp")));
@@ -52,14 +52,13 @@ public class SolutionWriter {
 		br.close();
 
 		BufferedWriter writer = new BufferedWriter(new FileWriter(new File(
-				"files/my.tsp")));
+				"files/heidelberg.tsp")));
 
 		for (int j = 0; j < arr.length; j++) {
-			int i = arr[j];
+			int i = arr[j] - 1;
 			writer.write(records.get(i).x + " " + records.get(i).y + "\n");
 		}
 		writer.flush();
 		writer.close();
 	}
-
 }
