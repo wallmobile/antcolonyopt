@@ -17,7 +17,7 @@ public class ParameterTesting {
 
 	public static void alphatesting() throws IOException, InterruptedException,
 			ExecutionException {
-
+		
 		double bestAlpha = -10.0d;
 		double bestResult = Double.MAX_VALUE;
 		for (double i = -10.0d; i <= 10.0d; i += 0.1d) {
