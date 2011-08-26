@@ -10,6 +10,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 public final class AntColonyOptimization {
 
@@ -17,11 +18,11 @@ public final class AntColonyOptimization {
 	public static final double BETA = 0.5d;
 	public static final double Q = 0.5d;
 	public static final double PHEROMONE_PERSISTENCE = 0.5d;
-	
+
 	// use power of 2
-	public static final int numOfAgents = 512;
+	public static final int numOfAgents = 64;
 	private static final int poolSize = 8;
-	private static final int progressReportModulo = 64;
+	private static final int progressReportModulo = 8;
 
 	private static final Random random = new Random(System.currentTimeMillis());
 
@@ -35,7 +36,7 @@ public final class AntColonyOptimization {
 
 	final double[][] matrix;
 	final double[][] invertedMatrix;
-	final double[][] pheromones;
+	private final double[][] pheromones;
 	private final Object[][] mutexes;
 
 	public AntColonyOptimization() throws IOException {
@@ -45,26 +46,6 @@ public final class AntColonyOptimization {
 		pheromones = initializePheromones();
 		mutexes = initializeMutexObjects();
 	}
-
-	// private final ReentrantLock[][] initializeMutexes() {
-	// final ReentrantLock[][] localMatrix = new
-	// ReentrantLock[matrix.length][matrix.length];
-	// int rows = matrix.length;
-	// for (int columns = 0; columns < matrix.length; columns++) {
-	// for (int i = 0; i < rows; i++) {
-	// localMatrix[columns][i] = new ReentrantLock();
-	// }
-	// }
-	//
-	// return localMatrix;
-	// }
-
-	// private final void adjustPheromoneBetter(int x, int y, double
-	// newPheromone) {
-	// mutexes[x][y].tryLock();
-	// pheromones[x][y] = newPheromone;
-	// mutexes[x][y].unlock();
-	// }
 
 	private final Object[][] initializeMutexObjects() {
 		final Object[][] localMatrix = new Object[matrix.length][matrix.length];
@@ -78,14 +59,13 @@ public final class AntColonyOptimization {
 		return localMatrix;
 	}
 
-	// TODO
-//	final double readPheromone(int x, int y) {
-//		double p;
-//		synchronized (mutexes[x][y]) {
-//			p = pheromones[x][y];
-//		}
-//		return p;
-//	}
+	final double readPheromone(int x, int y) {
+		double p;
+		synchronized (mutexes[x][y]) {
+			p = pheromones[x][y];
+		}
+		return p;
+	}
 
 	final void adjustPheromone(int x, int y, double newPheromone) {
 		synchronized (mutexes[x][y]) {
@@ -177,16 +157,29 @@ public final class AntColonyOptimization {
 		double bestDistance = Double.MAX_VALUE;
 
 		int agentsSend = 0;
+		int agentsDone = 0;
 		for (int agentNumber = 0; agentNumber < numOfAgents; agentNumber++) {
 			agentCompletionService.submit(new Agent(this,
 					getGaussianDistributionRowIndex()));
 			agentsSend++;
+			final Future<Double> dist = agentCompletionService.poll();
+			if (dist != null) {
+				final double distance = dist.get();
+				if (distance < bestDistance) {
+					bestDistance = distance;
+					System.out
+							.println("Agent returned with new bestdistance of: "
+									+ dist);
+				}
+				agentsDone++;
+			}
 		}
-
-		System.out.println("Waiting for " + agentsSend
+		
+		final int left = agentsSend-agentsDone;
+		System.out.println("Waiting for " + left
 				+ " agents to finish their random walk!");
 
-		for (int i = 0; i < agentsSend; i++) {
+		for (int i = 0; i < left; i++) {
 			double dist = agentCompletionService.take().get();
 			if (dist < bestDistance) {
 				bestDistance = dist;

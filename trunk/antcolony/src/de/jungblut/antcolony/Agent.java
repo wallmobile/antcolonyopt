@@ -42,14 +42,14 @@ public final class Agent implements Callable<Double> {
 	 * rows.
 	 */
 	private final double calculateProbability(int column, int row) {
-		final double p = Math.pow(instance.pheromones[column][row],
+		final double p = Math.pow(instance.readPheromone(column, row),
 				AntColonyOptimization.ALPHA)
 				* Math.pow(instance.invertedMatrix[column][row],
 						AntColonyOptimization.BETA);
 		double sum = 0.0d;
 
 		for (int i = 0; i < visited.length; i++) {
-			sum += Math.pow(instance.pheromones[column][i],
+			sum += Math.pow(instance.readPheromone(column, i),
 					AntColonyOptimization.ALPHA)
 					* Math.pow(instance.invertedMatrix[column][i],
 							AntColonyOptimization.BETA);
@@ -72,7 +72,7 @@ public final class Agent implements Callable<Double> {
 			instance.adjustPheromone(
 					lastNode,
 					next,
-					(instance.pheromones[lastNode][next] + (AntColonyOptimization.Q / distanceWalked)));
+					(instance.readPheromone(lastNode, next) + (AntColonyOptimization.Q / distanceWalked)));
 		}
 		return distanceWalked;
 	}
