@@ -49,7 +49,7 @@ public final class Agent implements Callable<WalkedWay> {
 		final double p = Math.pow(instance.readPheromone(column, row), AntColonyOptimization.ALPHA)
 				* Math.pow(instance.invertedMatrix[column][row], AntColonyOptimization.BETA);
 		double sum = 0.0d;
-
+		// TODO we don't have to do this all the time, this is a constant for the column we are currently in
 		for (int i = 0; i < visited.length; i++) {
 			sum += Math.pow(instance.readPheromone(column, i), AntColonyOptimization.ALPHA)
 					* Math.pow(instance.invertedMatrix[column][i], AntColonyOptimization.BETA);
@@ -65,7 +65,7 @@ public final class Agent implements Callable<WalkedWay> {
 		int next = start;
 		int i = 0;
 		while ((next = getNextProbableNode(lastNode)) != -1) {
-			way[i] = lastNode ; // TODO why is here -1??
+			way[i] = lastNode;
 			i++;
 			distanceWalked += instance.matrix[lastNode][next];
 			visited[next] = true;
@@ -77,6 +77,7 @@ public final class Agent implements Callable<WalkedWay> {
 					next,
 					(instance.readPheromone(lastNode, next) + (AntColonyOptimization.Q / distanceWalked)));
 		}
+		way[i] = lastNode;
 		return new WalkedWay(way, distanceWalked);
 	}
 }
