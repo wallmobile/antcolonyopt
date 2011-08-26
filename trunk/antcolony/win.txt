@@ -1,0 +1,2 @@
+Found best so far: 20134.69214664361
+Optimal distance (in heidelberg) is: 20985.156714227644
