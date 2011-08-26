@@ -30,6 +30,7 @@ public final class Agent implements Callable<WalkedWay> {
 			for (int column = 0; column < visited.length; column++) {
 				if (y != column) {
 					final double p = calculateProbability(column, y);
+//					System.out.println("Probability for " + y + " to "+ column + " is " + p);
 					if (p > probability) {
 						if (!visited[column]) {
 							node = column;
@@ -47,7 +48,7 @@ public final class Agent implements Callable<WalkedWay> {
 	 * (pheromones ^ ALPHA) * ((1/length) ^ BETA) divided by the sum of all
 	 * rows.
 	 */
-	private final double calculateProbability(int column, int row) {
+	private final double calculateProbability(int row, int column) {
 		final double p = Math.pow(instance.readPheromone(column, row),
 				AntColonyOptimization.ALPHA)
 				* Math.pow(instance.invertedMatrix[column][row],
