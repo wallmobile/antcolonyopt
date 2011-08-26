@@ -47,6 +47,11 @@ public class SolutionReader {
 			Record h = records.get(i + 1);
 			distance += calculateEuclidianDistance(r.x, r.y, h.x, h.y);
 		}
+		
+		Record r = records.get(records.size()-1);
+		Record h = records.get(0);
+		distance += calculateEuclidianDistance(r.x, r.y, h.x, h.y);
+		
 		System.out.println("Optimal distance is: " + distance);
 	}
 
