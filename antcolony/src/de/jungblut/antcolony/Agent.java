@@ -1,5 +1,6 @@
 package de.jungblut.antcolony;
 
+import java.util.Random;
 import java.util.concurrent.Callable;
 
 import de.jungblut.antcolony.AntColonyOptimization.WalkedWay;
@@ -12,6 +13,7 @@ public final class Agent implements Callable<WalkedWay> {
 	private final boolean[] visited;
 	private final int[] way;
 	private int toVisit;
+	private Random random = new Random(System.nanoTime());
 
 	public Agent(AntColonyOptimization instance, int start) {
 		super();
@@ -24,25 +26,14 @@ public final class Agent implements Callable<WalkedWay> {
 	}
 
 	private final int getNextProbableNode(int y) {
-		int node = -1;
+		int nextNode = -1;
+
+		double[] probabilityArray;
 		if (toVisit > 0) {
-			double probability = -1.0d;
-			for (int column = 0; column < visited.length; column++) {
-				if (y != column) {
-					final double p = calculateProbability(column, y);
-					// System.out.println("Probability for " + y + " to "+
-					// column + " is " + p);
-					if (p > probability) {
-						if (!visited[column]) {
-							node = column;
-							probability = p;
-						}
-					}
-				}
-			}
+			// TODO better :D
 		}
 
-		return node;
+		return nextNode;
 	}
 
 	/*
@@ -55,8 +46,6 @@ public final class Agent implements Callable<WalkedWay> {
 				* Math.pow(instance.invertedMatrix[column][row],
 						AntColonyOptimization.BETA);
 		double sum = 0.0d;
-		// TODO we don't have to do this all the time, this is a constant for
-		// the column we are currently in
 		for (int i = 0; i < visited.length; i++) {
 			sum += Math.pow(instance.readPheromone(column, i),
 					AntColonyOptimization.ALPHA)
@@ -64,7 +53,7 @@ public final class Agent implements Callable<WalkedWay> {
 							AntColonyOptimization.BETA);
 		}
 
-		return p / sum;
+		return p;
 	}
 
 	@Override
