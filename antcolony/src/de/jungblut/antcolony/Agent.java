@@ -2,12 +2,15 @@ package de.jungblut.antcolony;
 
 import java.util.concurrent.Callable;
 
-public final class Agent implements Callable<Double> {
+import de.jungblut.antcolony.AntColonyOptimization.WalkedWay;
+
+public final class Agent implements Callable<WalkedWay> {
 
 	private final AntColonyOptimization instance;
 	private double distanceWalked = 0.0d;
 	private final int start;
 	private final boolean[] visited;
+	private final int[] way;
 	private int toVisit;
 
 	public Agent(AntColonyOptimization instance, int start) {
@@ -17,14 +20,15 @@ public final class Agent implements Callable<Double> {
 		visited[start] = true;
 		toVisit = visited.length - 1;
 		this.start = start;
+		this.way = new int[visited.length];
 	}
 
-	private final int getNextProbableNode(int x, int y) {
+	private final int getNextProbableNode(int y) {
 		int node = -1;
 		if (toVisit > 0) {
 			double probability = -1.0d;
 			for (int column = 0; column < visited.length; column++) {
-				final double p = calculateProbability(x, y);
+				final double p = calculateProbability(column, y);
 				if (p > probability) {
 					if (!visited[column]) {
 						node = column;
@@ -42,28 +46,27 @@ public final class Agent implements Callable<Double> {
 	 * rows.
 	 */
 	private final double calculateProbability(int column, int row) {
-		final double p = Math.pow(instance.readPheromone(column, row),
-				AntColonyOptimization.ALPHA)
-				* Math.pow(instance.invertedMatrix[column][row],
-						AntColonyOptimization.BETA);
+		final double p = Math.pow(instance.readPheromone(column, row), AntColonyOptimization.ALPHA)
+				* Math.pow(instance.invertedMatrix[column][row], AntColonyOptimization.BETA);
 		double sum = 0.0d;
 
 		for (int i = 0; i < visited.length; i++) {
-			sum += Math.pow(instance.readPheromone(column, i),
-					AntColonyOptimization.ALPHA)
-					* Math.pow(instance.invertedMatrix[column][i],
-							AntColonyOptimization.BETA);
+			sum += Math.pow(instance.readPheromone(column, i), AntColonyOptimization.ALPHA)
+					* Math.pow(instance.invertedMatrix[column][i], AntColonyOptimization.BETA);
 		}
 
 		return p / sum;
 	}
 
 	@Override
-	public final Double call() throws Exception {
+	public final WalkedWay call() throws Exception {
 
 		int lastNode = start;
 		int next = start;
-		while ((next = getNextProbableNode(lastNode, next)) != -1) {
+		int i = 0;
+		while ((next = getNextProbableNode(lastNode)) != -1) {
+			way[i] = lastNode ; // TODO why is here -1??
+			i++;
 			distanceWalked += instance.matrix[lastNode][next];
 			visited[next] = true;
 			lastNode = next;
@@ -74,6 +77,6 @@ public final class Agent implements Callable<Double> {
 					next,
 					(instance.readPheromone(lastNode, next) + (AntColonyOptimization.Q / distanceWalked)));
 		}
-		return distanceWalked;
+		return new WalkedWay(way, distanceWalked);
 	}
 }
