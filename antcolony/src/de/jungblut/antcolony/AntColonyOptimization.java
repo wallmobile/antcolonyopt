@@ -19,10 +19,10 @@ public final class AntColonyOptimization {
 	// rapid selection
 	public static final double BETA = 0.5d;
 
-	// heuristic parameter
+	// heuristic parameters
 	public static final double Q = 0.1d;
 	public static final double PHEROMONE_PERSISTENCE = 0.001d;
-	public static final double BOOST_DISTANCE = 0.25d;
+	public static final double BOOST_DISTANCE = 2d;
 	public static final double INITIAL_PHEROMONES = 0.5d;
 
 	// use power of 2
@@ -73,9 +73,15 @@ public final class AntColonyOptimization {
 
 	final void adjustPheromone(int x, int y, double newPheromone) {
 		synchronized (mutexes[x][y]) {
-			pheromones[x][y] = ((1 - AntColonyOptimization.PHEROMONE_PERSISTENCE) * pheromones[x][y])
-					+ newPheromone;
+			pheromones[x][y] = calculatePheromones(pheromones[x][y],
+					newPheromone);
 		}
+	}
+
+	private final double calculatePheromones(double current, double newPheromone) {
+		final double result = (1 - AntColonyOptimization.PHEROMONE_PERSISTENCE)
+				* current + newPheromone + BOOST_DISTANCE * newPheromone;
+		return result;
 	}
 
 	final void adjustPheromone(int[] way, double newPheromone) {
@@ -84,11 +90,11 @@ public final class AntColonyOptimization {
 				Arrays.fill(pheromones[i], 0.0d);
 			}
 			for (int i = 0; i < way.length - 1; i++) {
-				pheromones[way[i]][way[i + 1]] = ((1 - AntColonyOptimization.PHEROMONE_PERSISTENCE) * pheromones[way[i]][way[i + 1]])
-						+ newPheromone;
+				pheromones[way[i]][way[i + 1]] = calculatePheromones(
+						pheromones[way[i]][way[i + 1]], newPheromone);
 			}
-			pheromones[way[way.length - 1]][way[0]] = ((1 - AntColonyOptimization.PHEROMONE_PERSISTENCE) * pheromones[way[way.length - 1]][way[0]])
-					+ newPheromone;
+			pheromones[way[way.length - 1]][way[0]] = calculatePheromones(
+					pheromones[way.length - 1][way[0]], newPheromone);
 		}
 	}
 
