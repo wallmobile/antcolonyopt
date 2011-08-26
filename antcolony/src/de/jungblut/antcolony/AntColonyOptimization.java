@@ -18,13 +18,15 @@ public final class AntColonyOptimization {
 	public static final double ALPHA = 0.0001d;
 	// rapid selection
 	public static final double BETA = 0.5d;
+
 	// heuristic parameter
 	public static final double Q = 0.1d;
-	public static final double PHEROMONE_PERSISTENCE = 0.5d;
-	private static final double INITIAL_PHEROMONES = 0.5d;
+	public static final double PHEROMONE_PERSISTENCE = 0.001d;
+	public static final double BOOST_DISTANCE = 0.25d;
+	public static final double INITIAL_PHEROMONES = 0.5d;
 
 	// use power of 2
-	public static final int numOfAgents = 64;
+	public static final int numOfAgents = 512;
 	private static final int poolSize = Runtime.getRuntime()
 			.availableProcessors();
 
@@ -71,7 +73,8 @@ public final class AntColonyOptimization {
 
 	final void adjustPheromone(int x, int y, double newPheromone) {
 		synchronized (mutexes[x][y]) {
-			pheromones[x][y] = newPheromone;
+			pheromones[x][y] = ((1 - AntColonyOptimization.PHEROMONE_PERSISTENCE) * pheromones[x][y])
+					+ newPheromone;
 		}
 	}
 
@@ -81,9 +84,11 @@ public final class AntColonyOptimization {
 				Arrays.fill(pheromones[i], 0.0d);
 			}
 			for (int i = 0; i < way.length - 1; i++) {
-				pheromones[way[i]][way[i + 1]] = newPheromone;
+				pheromones[way[i]][way[i + 1]] = ((1 - AntColonyOptimization.PHEROMONE_PERSISTENCE) * pheromones[way[i]][way[i + 1]])
+						+ newPheromone;
 			}
-			pheromones[way[way.length - 1]][way[0]] = newPheromone;
+			pheromones[way[way.length - 1]][way[0]] = ((1 - AntColonyOptimization.PHEROMONE_PERSISTENCE) * pheromones[way[way.length - 1]][way[0]])
+					+ newPheromone;
 		}
 	}
 
@@ -206,11 +211,11 @@ public final class AntColonyOptimization {
 		System.out.println("Found best so far: " + bestDistance.distance);
 		System.out.println(Arrays.toString(bestDistance.way));
 
-//		System.out.println("Pheromones Array:");
-//
-//		for (int i = 0; i < pheromones.length; i++) {
-//			System.out.println(Arrays.toString(pheromones[i]));
-//		}
+		System.out.println("Pheromones Array:");
+
+		for (int i = 0; i < pheromones.length; i++) {
+			System.out.println(Arrays.toString(pheromones[i]));
+		}
 	}
 
 	private final int getGaussianDistributionRowIndex() {
