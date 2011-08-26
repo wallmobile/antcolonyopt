@@ -20,10 +20,10 @@ public class SolutionWriter {
 	public static void main(String[] args) throws NumberFormatException,
 			IOException {
 
-		int[] arr = new int[] { 27, 26, 25, 46, 13, 12, 51, 10, 50, 11, 24, 3,
-				5, 4, 14, 23, 47, 37, 39, 36, 38, 35, 34, 33, 43, 15, 49, 19,
-				22, 29, 41, 6, 1, 16, 2, 17, 30, 20, 21, 0, 48, 31, 44, 18, 40,
-				7, 8, 9, 32, 42, 45, 28 };
+		int[] arr = new int[] { 0, 21, 30, 17, 2, 16, 20, 41, 6, 1, 29, 22, 19,
+				49, 15, 28, 46, 25, 26, 27, 11, 50, 10, 51, 13, 12, 32, 42, 9,
+				8, 7, 40, 18, 44, 31, 48, 35, 34, 33, 38, 39, 37, 36, 47, 23,
+				4, 14, 5, 3, 24, 45, 43 };
 
 		final BufferedReader br = new BufferedReader(new FileReader(new File(
 				"files/berlin52.tsp")));
