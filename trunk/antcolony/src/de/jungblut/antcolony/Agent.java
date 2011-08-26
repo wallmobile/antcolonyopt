@@ -30,7 +30,8 @@ public final class Agent implements Callable<WalkedWay> {
 			for (int column = 0; column < visited.length; column++) {
 				if (y != column) {
 					final double p = calculateProbability(column, y);
-//					System.out.println("Probability for " + y + " to "+ column + " is " + p);
+					// System.out.println("Probability for " + y + " to "+
+					// column + " is " + p);
 					if (p > probability) {
 						if (!visited[column]) {
 							node = column;
@@ -76,11 +77,8 @@ public final class Agent implements Callable<WalkedWay> {
 			way[i] = lastNode;
 			i++;
 			distanceWalked += instance.matrix[lastNode][next];
-
-			// TODO this is experimental.., Decay is missing!
 			instance.adjustPheromone(lastNode, next,
 					(AntColonyOptimization.Q / (distanceWalked)));
-
 			visited[next] = true;
 			lastNode = next;
 			toVisit--;
