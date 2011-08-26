@@ -75,17 +75,18 @@ public final class Agent implements Callable<WalkedWay> {
 			way[i] = lastNode;
 			i++;
 			distanceWalked += instance.matrix[lastNode][next];
+
+			// TODO this is experimental.., Decay is missing!
+			instance.adjustPheromone(lastNode, next,
+					(AntColonyOptimization.Q / (distanceWalked)));
+
 			visited[next] = true;
 			lastNode = next;
 			toVisit--;
-			// TODO this is experimental.., Decay is missing!
-			instance.adjustPheromone(
-					lastNode,
-					next,
-					(instance.readPheromone(lastNode, next) + (AntColonyOptimization.Q / distanceWalked)));
 		}
 		distanceWalked += instance.matrix[lastNode][start];
 		way[i] = lastNode;
+
 		return new WalkedWay(way, distanceWalked);
 	}
 }

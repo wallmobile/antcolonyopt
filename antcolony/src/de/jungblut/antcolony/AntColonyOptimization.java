@@ -14,20 +14,24 @@ import java.util.concurrent.Executors;
 
 public final class AntColonyOptimization {
 
+	// greedy
 	public static final double ALPHA = 0.5d;
+	// rapid selection
 	public static final double BETA = 0.5d;
+	// heuristic parameter
 	public static final double Q = 0.5d;
 	public static final double PHEROMONE_PERSISTENCE = 0.5d;
+	private static final double INITIAL_PHEROMONES = 0.5d;
 
 	// use power of 2
-	public static final int numOfAgents = 64;
-	private static final int poolSize = Runtime.getRuntime().availableProcessors();
+	public static final int numOfAgents = 512;
+	private static final int poolSize = Runtime.getRuntime()
+			.availableProcessors();
 
 	private static final Random random = new Random(System.currentTimeMillis());
 
-	private static final double initialPheromone = 0.1d;
-
-	private static final ExecutorService threadPool = Executors.newFixedThreadPool(poolSize);
+	private static final ExecutorService threadPool = Executors
+			.newFixedThreadPool(poolSize);
 
 	private static final ExecutorCompletionService<WalkedWay> agentCompletionService = new ExecutorCompletionService<WalkedWay>(
 			threadPool);
@@ -71,12 +75,24 @@ public final class AntColonyOptimization {
 		}
 	}
 
+	final void adjustPheromone(int[] way, double newPheromone) {
+		synchronized (pheromones) {
+			for (int i = 0; i < pheromones.length; i++) {
+				Arrays.fill(pheromones[i], 0.0d);
+			}
+			for (int i = 0; i < way.length - 1; i++) {
+				pheromones[way[i]][way[i + 1]] = newPheromone;
+			}
+			pheromones[way[way.length - 1]][way[0]] = newPheromone;
+		}
+	}
+
 	private final double[][] initializePheromones() {
 		final double[][] localMatrix = new double[matrix.length][matrix.length];
 		int rows = matrix.length;
 		for (int columns = 0; columns < matrix.length; columns++) {
 			for (int i = 0; i < rows; i++) {
-				localMatrix[columns][i] = initialPheromone;
+				localMatrix[columns][i] = INITIAL_PHEROMONES;
 			}
 		}
 
@@ -85,7 +101,8 @@ public final class AntColonyOptimization {
 
 	private final double[][] readMatrixFromFile() throws IOException {
 
-		final BufferedReader br = new BufferedReader(new FileReader(new File("files/berlin52.tsp")));
+		final BufferedReader br = new BufferedReader(new FileReader(new File(
+				"files/berlin52.tsp")));
 
 		final LinkedList<Record> records = new LinkedList<Record>();
 
@@ -99,7 +116,8 @@ public final class AntColonyOptimization {
 
 			if (readAhead) {
 				String[] split = line.split(" ");
-				records.add(new Record(Double.parseDouble(split[1]), Double.parseDouble(split[2])));
+				records.add(new Record(Double.parseDouble(split[1]), Double
+						.parseDouble(split[2])));
 			}
 
 			if (line.equals("NODE_COORD_SECTION")) {
@@ -109,13 +127,15 @@ public final class AntColonyOptimization {
 
 		br.close();
 
-		final double[][] localMatrix = new double[records.size()][records.size()];
+		final double[][] localMatrix = new double[records.size()][records
+				.size()];
 
 		int rIndex = 0;
 		for (Record r : records) {
 			int hIndex = 0;
 			for (Record h : records) {
-				localMatrix[rIndex][hIndex] = calculateEuclidianDistance(r.x, r.y, h.x, h.y);
+				localMatrix[rIndex][hIndex] = calculateEuclidianDistance(r.x,
+						r.y, h.x, h.y);
 				hIndex++;
 			}
 			rIndex++;
@@ -141,8 +161,10 @@ public final class AntColonyOptimization {
 			return 1.0d / distance;
 	}
 
-	private final double calculateEuclidianDistance(double x1, double y1, double x2, double y2) {
-		return Math.abs((Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2))));
+	private final double calculateEuclidianDistance(double x1, double y1,
+			double x2, double y2) {
+		return Math
+				.abs((Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2))));
 	}
 
 	private final void start() throws InterruptedException, ExecutionException {
@@ -152,31 +174,43 @@ public final class AntColonyOptimization {
 		int agentsSend = 0;
 		int agentsDone = 0;
 		for (int agentNumber = 0; agentNumber < numOfAgents; agentNumber++) {
-			agentCompletionService.submit(new Agent(this, getGaussianDistributionRowIndex()));
+			agentCompletionService.submit(new Agent(this,
+					getGaussianDistributionRowIndex()));
 			agentsSend++;
 			if (agentsSend % poolSize == 0) {
 				WalkedWay way = agentCompletionService.take().get();
-				if (bestDistance == null || way.distance < bestDistance.distance) {
+				if (bestDistance == null
+						|| way.distance < bestDistance.distance) {
 					bestDistance = way;
-					System.out.println("Agent returned with new bestdistance of: " + way.distance);
+					System.out
+							.println("Agent returned with new bestdistance of: "
+									+ way.distance);
 				}
 				agentsDone++;
 			}
 		}
 
 		final int left = agentsSend - agentsDone;
-		System.out.println("Waiting for " + left + " agents to finish their random walk!");
+		System.out.println("Waiting for " + left
+				+ " agents to finish their random walk!");
 
 		for (int i = 0; i < left; i++) {
 			WalkedWay way = agentCompletionService.take().get();
 			if (bestDistance == null || way.distance < bestDistance.distance) {
 				bestDistance = way;
-				System.out.println("Agent returned with new bestdistance of: " + way.distance);
+				System.out.println("Agent returned with new bestdistance of: "
+						+ way.distance);
 			}
 		}
 		threadPool.shutdownNow();
 		System.out.println("Found best so far: " + bestDistance.distance);
 		System.out.println(Arrays.toString(bestDistance.way));
+
+//		System.out.println("Pheromones Array:");
+//
+//		for (int i = 0; i < pheromones.length; i++) {
+//			System.out.println(Arrays.toString(pheromones[i]));
+//		}
 	}
 
 	private final int getGaussianDistributionRowIndex() {
@@ -205,12 +239,13 @@ public final class AntColonyOptimization {
 		}
 	}
 
-	public static void main(String[] args) throws IOException, InterruptedException,
-			ExecutionException {
+	public static void main(String[] args) throws IOException,
+			InterruptedException, ExecutionException {
 		long start = System.currentTimeMillis();
 		AntColonyOptimization antColonyOptimization = new AntColonyOptimization();
 		antColonyOptimization.start();
-		System.out.println("Took: " + (System.currentTimeMillis() - start) + " ms!");
+		System.out.println("Took: " + (System.currentTimeMillis() - start)
+				+ " ms!");
 	}
 
 }
