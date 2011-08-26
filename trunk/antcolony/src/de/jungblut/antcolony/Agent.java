@@ -28,11 +28,13 @@ public final class Agent implements Callable<WalkedWay> {
 		if (toVisit > 0) {
 			double probability = -1.0d;
 			for (int column = 0; column < visited.length; column++) {
-				final double p = calculateProbability(column, y);
-				if (p > probability) {
-					if (!visited[column]) {
-						node = column;
-						probability = p;
+				if (y != column) {
+					final double p = calculateProbability(column, y);
+					if (p > probability) {
+						if (!visited[column]) {
+							node = column;
+							probability = p;
+						}
 					}
 				}
 			}
@@ -46,13 +48,18 @@ public final class Agent implements Callable<WalkedWay> {
 	 * rows.
 	 */
 	private final double calculateProbability(int column, int row) {
-		final double p = Math.pow(instance.readPheromone(column, row), AntColonyOptimization.ALPHA)
-				* Math.pow(instance.invertedMatrix[column][row], AntColonyOptimization.BETA);
+		final double p = Math.pow(instance.readPheromone(column, row),
+				AntColonyOptimization.ALPHA)
+				* Math.pow(instance.invertedMatrix[column][row],
+						AntColonyOptimization.BETA);
 		double sum = 0.0d;
-		// TODO we don't have to do this all the time, this is a constant for the column we are currently in
+		// TODO we don't have to do this all the time, this is a constant for
+		// the column we are currently in
 		for (int i = 0; i < visited.length; i++) {
-			sum += Math.pow(instance.readPheromone(column, i), AntColonyOptimization.ALPHA)
-					* Math.pow(instance.invertedMatrix[column][i], AntColonyOptimization.BETA);
+			sum += Math.pow(instance.readPheromone(column, i),
+					AntColonyOptimization.ALPHA)
+					* Math.pow(instance.invertedMatrix[column][i],
+							AntColonyOptimization.BETA);
 		}
 
 		return p / sum;
@@ -77,6 +84,7 @@ public final class Agent implements Callable<WalkedWay> {
 					next,
 					(instance.readPheromone(lastNode, next) + (AntColonyOptimization.Q / distanceWalked)));
 		}
+		distanceWalked += instance.matrix[lastNode][start];
 		way[i] = lastNode;
 		return new WalkedWay(way, distanceWalked);
 	}
