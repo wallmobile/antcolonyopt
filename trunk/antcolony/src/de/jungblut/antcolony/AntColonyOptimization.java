@@ -126,9 +126,9 @@ public final class AntColonyOptimization {
 			}
 
 			if (readAhead) {
-				String[] split = line.split(" ");
-				records.add(new Record(Double.parseDouble(split[1]), Double
-						.parseDouble(split[2])));
+				String[] split = line.trim().split(" ");
+				records.add(new Record(Double.parseDouble(split[1].trim()), Double
+						.parseDouble(split[2].trim())));
 			}
 
 			if (line.equals("NODE_COORD_SECTION")) {
