@@ -7,6 +7,7 @@ import java.util.concurrent.ExecutionException;
  * TODO make this more robust: 
  * - safe up to 10 best results for each testing
  * - make 3 tests with a parameter, avg them and safe best of it
+ * - step every 0.5 is enough
  */
 public class ParameterTesting {
 

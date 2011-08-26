@@ -15,9 +15,9 @@ import java.util.concurrent.Executors;
 public final class AntColonyOptimization {
 
 	// greedy
-	public static double ALPHA = -3d;
+	public static double ALPHA = -0.5d;
 	// rapid selection
-	public static double BETA = 5d;
+	public static double BETA = 9.5d;
 
 	// heuristic parameters
 	public static double Q = 0.0001d; // somewhere between 0 and 1
@@ -25,7 +25,7 @@ public final class AntColonyOptimization {
 	public static double INITIAL_PHEROMONES = 1d; // can be anything
 
 	// use power of 2
-	public static final int numOfAgents = 1024;
+	public static final int numOfAgents = 512;
 	private static final int poolSize = Runtime.getRuntime().availableProcessors();
 
 	private static final Random random = new Random(System.currentTimeMillis());
