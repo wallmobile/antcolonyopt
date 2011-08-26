@@ -8,7 +8,7 @@ public class ParameterTesting {
 	public static void main(String[] args) throws IOException,
 			InterruptedException, ExecutionException {
 
-		boolean finished = false;
+//		boolean finished = false;
 //		while (!finished) {
 			alphatesting(); // = -8.6
 //		}

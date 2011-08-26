@@ -13,7 +13,7 @@ public final class Agent implements Callable<WalkedWay> {
 	private final boolean[] visited;
 	private final int[] way;
 	private int toVisit;
-	private Random random = new Random(System.nanoTime());
+	private final Random random = new Random(System.nanoTime());
 
 	public Agent(AntColonyOptimization instance, int start) {
 		super();
@@ -26,14 +26,39 @@ public final class Agent implements Callable<WalkedWay> {
 	}
 
 	private final int getNextProbableNode(int y) {
-		int nextNode = -1;
-
-		double[] probabilityArray;
 		if (toVisit > 0) {
-			// TODO better :D
-		}
+			int danglingUnvisited = -1;
+			final double[] weights = new double[visited.length];
+			double sum = 0.0d;
+			for (int x = 0; x < visited.length; x++) {
+				if (!visited[x]) {
+					weights[x] = calculateProbability(x, y);
+					sum += weights[x];
+					danglingUnvisited = x;
+				}
+			}
 
-		return nextNode;
+			if (sum == 0.0d)
+				return danglingUnvisited;
+
+			// weighted indexing stuff
+			double pSum = 0.0d;
+			for (int i = 0; i < visited.length; i++) {
+				pSum += weights[i] / sum;
+				weights[i] = pSum;
+			}
+
+			final double r = random.nextDouble();
+			for (int i = 0; i < visited.length; i++) {
+				if (!visited[i]) {
+					if (r <= weights[i]) {
+						return i;
+					}
+				}
+			}
+
+		}
+		return -1;
 	}
 
 	/*
@@ -45,6 +70,7 @@ public final class Agent implements Callable<WalkedWay> {
 				AntColonyOptimization.ALPHA)
 				* Math.pow(instance.invertedMatrix[column][row],
 						AntColonyOptimization.BETA);
+		// TODO this can be calculated once
 		double sum = 0.0d;
 		for (int i = 0; i < visited.length; i++) {
 			sum += Math.pow(instance.readPheromone(column, i),
@@ -53,7 +79,7 @@ public final class Agent implements Callable<WalkedWay> {
 							AntColonyOptimization.BETA);
 		}
 
-		return p;
+		return p / sum;
 	}
 
 	@Override
