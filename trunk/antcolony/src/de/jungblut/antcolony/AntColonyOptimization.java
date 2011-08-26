@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Random;
 import java.util.concurrent.ExecutionException;
@@ -21,7 +22,6 @@ public final class AntColonyOptimization {
 	// use power of 2
 	public static final int numOfAgents = 64;
 	private static final int poolSize = Runtime.getRuntime().availableProcessors();
-	private static final int progressReportModulo = numOfAgents / 16;
 
 	private static final Random random = new Random(System.currentTimeMillis());
 
@@ -29,7 +29,7 @@ public final class AntColonyOptimization {
 
 	private static final ExecutorService threadPool = Executors.newFixedThreadPool(poolSize);
 
-	private static final ExecutorCompletionService<Double> agentCompletionService = new ExecutorCompletionService<Double>(
+	private static final ExecutorCompletionService<WalkedWay> agentCompletionService = new ExecutorCompletionService<WalkedWay>(
 			threadPool);
 
 	final double[][] matrix;
@@ -147,7 +147,7 @@ public final class AntColonyOptimization {
 
 	private final void start() throws InterruptedException, ExecutionException {
 
-		double bestDistance = Double.MAX_VALUE;
+		WalkedWay bestDistance = null;
 
 		int agentsSend = 0;
 		int agentsDone = 0;
@@ -155,10 +155,10 @@ public final class AntColonyOptimization {
 			agentCompletionService.submit(new Agent(this, getGaussianDistributionRowIndex()));
 			agentsSend++;
 			if (agentsSend % poolSize == 0) {
-				double dist = agentCompletionService.take().get();
-				if (dist < bestDistance) {
-					bestDistance = dist;
-					System.out.println("Agent returned with new bestdistance of: " + dist);
+				WalkedWay way = agentCompletionService.take().get();
+				if (bestDistance == null || way.distance < bestDistance.distance) {
+					bestDistance = way;
+					System.out.println("Agent returned with new bestdistance of: " + way.distance);
 				}
 				agentsDone++;
 			}
@@ -168,17 +168,15 @@ public final class AntColonyOptimization {
 		System.out.println("Waiting for " + left + " agents to finish their random walk!");
 
 		for (int i = 0; i < left; i++) {
-			double dist = agentCompletionService.take().get();
-			if (dist < bestDistance) {
-				bestDistance = dist;
-				System.out.println("Agent returned with new bestdistance of: " + dist);
-			}
-			if (i % progressReportModulo == 0) {
-				System.out.println(i + " agents of " + agentsSend + " already returned!");
+			WalkedWay way = agentCompletionService.take().get();
+			if (bestDistance == null || way.distance < bestDistance.distance) {
+				bestDistance = way;
+				System.out.println("Agent returned with new bestdistance of: " + way.distance);
 			}
 		}
 		threadPool.shutdownNow();
-		System.out.println("Found best so far: " + bestDistance);
+		System.out.println("Found best so far: " + bestDistance.distance);
+		System.out.println(Arrays.toString(bestDistance.way));
 	}
 
 	private final int getGaussianDistributionRowIndex() {
@@ -193,6 +191,17 @@ public final class AntColonyOptimization {
 			super();
 			this.x = x;
 			this.y = y;
+		}
+	}
+
+	static class WalkedWay {
+		int[] way;
+		double distance;
+
+		public WalkedWay(int[] way, double distance) {
+			super();
+			this.way = way;
+			this.distance = distance;
 		}
 	}
 
