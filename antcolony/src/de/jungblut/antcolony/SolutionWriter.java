@@ -52,7 +52,7 @@ public class SolutionWriter {
 		br.close();
 
 		BufferedWriter writer = new BufferedWriter(new FileWriter(new File(
-				"files/heidelberg.tsp")));
+				"files/my.tsp")));
 
 		for (int j = 0; j < arr.length; j++) {
 			int i = arr[j] - 1;
