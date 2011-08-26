@@ -26,7 +26,7 @@ public final class AntColonyOptimization {
 	public static final double INITIAL_PHEROMONES = 0.5d;
 
 	// use power of 2
-	public static final int numOfAgents = 512;
+	public static final int numOfAgents = 32;
 	private static final int poolSize = Runtime.getRuntime()
 			.availableProcessors();
 
@@ -217,11 +217,11 @@ public final class AntColonyOptimization {
 		System.out.println("Found best so far: " + bestDistance.distance);
 		System.out.println(Arrays.toString(bestDistance.way));
 
-		System.out.println("Pheromones Array:");
-
-		for (int i = 0; i < pheromones.length; i++) {
-			System.out.println(Arrays.toString(pheromones[i]));
-		}
+//		System.out.println("Pheromones Array:");
+//
+//		for (int i = 0; i < pheromones.length; i++) {
+//			System.out.println(Arrays.toString(pheromones[i]));
+//		}
 	}
 
 	private final int getGaussianDistributionRowIndex() {
