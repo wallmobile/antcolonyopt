@@ -15,7 +15,7 @@ import java.util.concurrent.Executors;
 public final class AntColonyOptimization {
 
 	// greedy
-	public static double ALPHA = -1d;
+	public static double ALPHA = -3d;
 	// rapid selection
 	public static double BETA = 5d;
 
