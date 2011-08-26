@@ -15,27 +15,27 @@ import java.util.concurrent.Executors;
 public final class AntColonyOptimization {
 
 	// greedy
-	public static final double ALPHA = 0.0001d;
+	public static final double ALPHA = -1.5d;
 	// rapid selection
-	public static final double BETA = 0.5d;
+	public static final double BETA = 1.5d;
 
 	// heuristic parameters
-	public static final double Q = 0.1d;
-	public static final double PHEROMONE_PERSISTENCE = 0.001d;
-	public static final double BOOST_DISTANCE = 2d;
-	public static final double INITIAL_PHEROMONES = 0.5d;
+	public static final double Q = 0.0001d;
+	public static final double PHEROMONE_PERSISTENCE = 0.1d;
+	public static final double BOOST_DISTANCE = 0d;
+	public static final double INITIAL_PHEROMONES = 1d;
 
 	// use power of 2
-	public static final int numOfAgents = 32;
-	private static final int poolSize = Runtime.getRuntime()
-			.availableProcessors();
+	public static final int numOfAgents = 128;
+	private static final int poolSize = 1;
+	// Runtime.getRuntime().availableProcessors();
 
 	private static final Random random = new Random(System.currentTimeMillis());
 
-	private static final ExecutorService threadPool = Executors
+	private final ExecutorService threadPool = Executors
 			.newFixedThreadPool(poolSize);
 
-	private static final ExecutorCompletionService<WalkedWay> agentCompletionService = new ExecutorCompletionService<WalkedWay>(
+	private final ExecutorCompletionService<WalkedWay> agentCompletionService = new ExecutorCompletionService<WalkedWay>(
 			threadPool);
 
 	final double[][] matrix;
@@ -127,8 +127,8 @@ public final class AntColonyOptimization {
 
 			if (readAhead) {
 				String[] split = line.trim().split(" ");
-				records.add(new Record(Double.parseDouble(split[1].trim()), Double
-						.parseDouble(split[2].trim())));
+				records.add(new Record(Double.parseDouble(split[1].trim()),
+						Double.parseDouble(split[2].trim())));
 			}
 
 			if (line.equals("NODE_COORD_SECTION")) {
@@ -252,6 +252,7 @@ public final class AntColonyOptimization {
 
 	public static void main(String[] args) throws IOException,
 			InterruptedException, ExecutionException {
+
 		long start = System.currentTimeMillis();
 		AntColonyOptimization antColonyOptimization = new AntColonyOptimization();
 		antColonyOptimization.start();
