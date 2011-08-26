@@ -12,10 +12,15 @@ Took: 6243 ms!
 	// heuristic parameters
 	public static final double Q = 0.0001d;
 	public static final double PHEROMONE_PERSISTENCE = 0.1d;
-	public static final double BOOST_DISTANCE = 0d;
 	public static final double INITIAL_PHEROMONES = 1d;
 
 	// use power of 2
 	public static final int numOfAgents = 128;
 	private static final int poolSize = 1;
+	
+	
+LIKE above but with BETA = 5 and 1024 AGENTS
 
+Found best so far: 7769.588033391303
+[45, 43, 33, 34, 35, 38, 39, 37, 36, 47, 23, 4, 14, 5, 3, 24, 11, 27, 26, 25, 46, 12, 13, 51, 10, 50, 32, 42, 9, 8, 7, 40, 18, 44, 31, 48, 0, 21, 30, 17, 2, 16, 20, 41, 6, 1, 29, 28, 15, 49, 19, 22]
+Took: 6986 ms!

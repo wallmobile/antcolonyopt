@@ -20,9 +20,9 @@ public final class AntColonyOptimization {
 	public static double BETA = 5d;
 
 	// heuristic parameters
-	public static double Q = 0.5d; // somewhere between 0 and 1
+	public static double Q = 0.0001d; // somewhere between 0 and 1
 	public static double PHEROMONE_PERSISTENCE = 0.1d; // between 0 and 1
-	public static double INITIAL_PHEROMONES = 0.5d; // can be anything
+	public static double INITIAL_PHEROMONES = 1d; // can be anything
 
 	// use power of 2
 	public static final int numOfAgents = 1024;
