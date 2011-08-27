@@ -4,6 +4,9 @@ import java.io.IOException;
 import java.util.TreeSet;
 import java.util.concurrent.ExecutionException;
 
+/*
+ * TODO in-comment stuff if you need to run this. (Constants in AntColonyOptimization class needs to be non-final)
+ */
 public class ParameterTesting {
 
 	static TreeSet<TestRecord> alphaQueue;
@@ -26,7 +29,7 @@ public class ParameterTesting {
 			for (int times = 0; times < 5; times++) {
 				System.out.println("Testing: " + i);
 				AntColonyOptimization opt = new AntColonyOptimization();
-				AntColonyOptimization.ALPHA = i;
+				// AntColonyOptimization.ALPHA = i;
 				final double result = opt.start();
 				avg[times] = result;
 			}
@@ -69,8 +72,8 @@ public class ParameterTesting {
 				for (int times = 0; times < 5; times++) {
 					System.out.println("Testing: " + i);
 					AntColonyOptimization opt = new AntColonyOptimization();
-					AntColonyOptimization.ALPHA = r.parameter;
-					AntColonyOptimization.BETA = i;
+					// AntColonyOptimization.ALPHA = r.parameter;
+					// AntColonyOptimization.BETA = i;
 					double start = opt.start();
 					avg[times] = start;
 				}
@@ -111,7 +114,7 @@ public class ParameterTesting {
 		for (double i = 0d; i <= 10.0d; i += 0.1d) {
 			System.out.println("Testing: " + i);
 			AntColonyOptimization opt = new AntColonyOptimization();
-			AntColonyOptimization.PHEROMONE_PERSISTENCE = i;
+			// AntColonyOptimization.PHEROMONE_PERSISTENCE = i;
 			double result = opt.start();
 			if (result < bestResult) {
 				bestAlpha = i;
