@@ -61,6 +61,18 @@ public final class Agent implements Callable<WalkedWay> {
 		return -1;
 	}
 
+	// test method
+	private final int calculateChoice(double[] probabilityDistr, Random rnd) {
+		double rndNumber = rnd.nextDouble();
+		int counter = -1;
+
+		while (rndNumber > 0) {
+			rndNumber -= probabilityDistr[++counter];
+		}
+
+		return counter;
+	}
+
 	/*
 	 * (pheromones ^ ALPHA) * ((1/length) ^ BETA) divided by the sum of all
 	 * rows.
