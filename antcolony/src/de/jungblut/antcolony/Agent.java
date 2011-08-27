@@ -25,6 +25,7 @@ public final class Agent implements Callable<WalkedWay> {
 		this.way = new int[visited.length];
 	}
 
+	// TODO really needs improvement
 	private final int getNextProbableNode(int y) {
 		if (toVisit > 0) {
 			int danglingUnvisited = -1;
@@ -62,6 +63,7 @@ public final class Agent implements Callable<WalkedWay> {
 	}
 
 	// test method
+	@SuppressWarnings("unused")
 	private final int calculateChoice(double[] probabilityDistr, Random rnd) {
 		double rndNumber = rnd.nextDouble();
 		int counter = -1;

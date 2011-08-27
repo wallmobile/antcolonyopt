@@ -14,20 +14,18 @@ import java.util.concurrent.Executors;
 
 public final class AntColonyOptimization {
 
-	// TODO make them final again
-	
 	// greedy
-	public static double ALPHA = -0.5d;
+	public static final double ALPHA = -0.2000000000000188d;
 	// rapid selection
-	public static double BETA = 9.5d;
+	public static final double BETA = 9.599999999999982d;
 
 	// heuristic parameters
-	public static double Q = 0.0001d; // somewhere between 0 and 1
-	public static double PHEROMONE_PERSISTENCE = 0.1d; // between 0 and 1
-	public static double INITIAL_PHEROMONES = 0.8d; // can be anything
+	public static final double Q = 0.0001d; // somewhere between 0 and 1
+	public static final double PHEROMONE_PERSISTENCE = 0.1d; // between 0 and 1
+	public static final double INITIAL_PHEROMONES = 0.8d; // can be anything
 
 	// use power of 2
-	public static final int numOfAgents = 512; // TODO can be reduced to 256
+	public static final int numOfAgents = 256;
 	private static final int poolSize = Runtime.getRuntime().availableProcessors();
 
 	private static final Random random = new Random(System.currentTimeMillis());
@@ -225,6 +223,7 @@ public final class AntColonyOptimization {
 
 	}
 
+	// TODO this is actually not gaussian :D
 	private final int getGaussianDistributionRowIndex() {
 		return random.nextInt(matrix.length);
 	}
