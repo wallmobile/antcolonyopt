@@ -1,6 +1,7 @@
 package de.jungblut.antcolony;
 
 import java.lang.reflect.Array;
+import java.util.Arrays;
 
 public class PriorityQueue<T extends Comparable<T>> {
 	private int size;
@@ -125,6 +126,11 @@ public class PriorityQueue<T extends Comparable<T>> {
 		heap[size] = element;
 		upHeap();
 		return heap[1];
+	}
+
+	@Override
+	public String toString() {
+		return "PriorityQueue [heap=" + Arrays.toString(heap) + "]";
 	}
 
 	/**
