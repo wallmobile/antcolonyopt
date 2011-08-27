@@ -6,11 +6,12 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.LinkedList;
-import java.util.Random;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
+import cern.jet.random.Uniform;
 
 public final class AntColonyOptimization {
 
@@ -25,10 +26,11 @@ public final class AntColonyOptimization {
 	public static final double INITIAL_PHEROMONES = 0.8d; // can be anything
 
 	// use power of 2
-	public static final int numOfAgents = 256;
-	private static final int poolSize = Runtime.getRuntime().availableProcessors();
+	public static final int numOfAgents = 2048 * 2 * 10;
+	private static final int poolSize = Runtime.getRuntime()
+			.availableProcessors();
 
-	private static final Random random = new Random(System.currentTimeMillis());
+	private Uniform uniform;
 
 	private final ExecutorService threadPool = Executors
 			.newFixedThreadPool(poolSize);
@@ -47,6 +49,9 @@ public final class AntColonyOptimization {
 		invertedMatrix = invertMatrix();
 		pheromones = initializePheromones();
 		mutexes = initializeMutexObjects();
+		// (double min, double max, int seed)
+		uniform = new Uniform(0, matrix.length - 1,
+				(int) System.currentTimeMillis());
 	}
 
 	private final Object[][] initializeMutexObjects() {
@@ -223,9 +228,8 @@ public final class AntColonyOptimization {
 
 	}
 
-	// TODO this is actually not gaussian :D
 	private final int getGaussianDistributionRowIndex() {
-		return random.nextInt(matrix.length);
+		return uniform.nextInt();
 	}
 
 	static class Record {
