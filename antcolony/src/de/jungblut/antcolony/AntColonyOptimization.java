@@ -26,7 +26,8 @@ public final class AntColonyOptimization {
 
 	// use power of 2
 	public static final int numOfAgents = 512;
-	private static final int poolSize = Runtime.getRuntime().availableProcessors();
+	private static final int poolSize = 2;
+//			Runtime.getRuntime().availableProcessors();
 
 	private static final Random random = new Random(System.currentTimeMillis());
 

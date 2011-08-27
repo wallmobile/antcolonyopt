@@ -1,11 +1,12 @@
 package de.jungblut.antcolony;
 
 import java.io.IOException;
+import java.util.TreeSet;
 import java.util.concurrent.ExecutionException;
 
 public class ParameterTesting {
 
-	static PriorityQueue<TestRecord> alphaQueue;
+	static TreeSet<TestRecord> alphaQueue;
 
 	public static void main(String[] args) throws IOException,
 			InterruptedException, ExecutionException {
@@ -18,8 +19,7 @@ public class ParameterTesting {
 	public static void alphatesting() throws IOException, InterruptedException,
 			ExecutionException {
 
-		PriorityQueue<TestRecord> queue = new PriorityQueue<ParameterTesting.TestRecord>(
-				5, TestRecord.class);
+		TreeSet<TestRecord> queue = new TreeSet<ParameterTesting.TestRecord>();
 
 		for (double i = -10.0d; i <= 10.0d; i += 0.1d) {
 			double[] avg = new double[5];
@@ -40,13 +40,20 @@ public class ParameterTesting {
 			}
 
 			double average = sum / avg.length;
-			queue.insertWithOverflow(new TestRecord(i, average, best));
+			queue.add(new TestRecord(i, average, best));
 
 			System.out.println("Best alpha found until now was: "
-					+ queue.top().toString());
+					+ queue.first().toString());
 		}
 
-		System.out.println("Best alpha found was: " + queue.top().toString());
+		System.out.println("Best alpha found was: " + queue.first().toString());
+		if (queue.size() > 5) {
+			TreeSet<TestRecord> temp = new TreeSet<ParameterTesting.TestRecord>();
+			for (TestRecord t : queue) {
+				temp.add(t);
+			}
+			queue = temp;
+		}
 		System.out.println(queue.toString());
 		alphaQueue = queue;
 	}
@@ -54,11 +61,9 @@ public class ParameterTesting {
 	public static void betatesting() throws IOException, InterruptedException,
 			ExecutionException {
 
-		PriorityQueue<TestRecord> queue = new PriorityQueue<ParameterTesting.TestRecord>(
-				5, TestRecord.class);
+		TreeSet<TestRecord> queue = new TreeSet<ParameterTesting.TestRecord>();
 
-		for (Object o : alphaQueue.getHeapArray()) {
-			TestRecord r = (TestRecord) o;
+		for (TestRecord r : alphaQueue) {
 			for (double i = 0d; i <= 10.0d; i += 0.1d) {
 				double[] avg = new double[5];
 				for (int times = 0; times < 5; times++) {
@@ -79,15 +84,22 @@ public class ParameterTesting {
 				}
 
 				double average = sum / avg.length;
-				queue.insertWithOverflow(new TestRecord(i, average, best, r));
+				queue.add(new TestRecord(i, average, best, r));
 
 				System.out.println("Best BETA found until now was: "
-						+ queue.top().toString());
+						+ queue.first().toString());
 
 			}
 		}
 
-		System.out.println("Best BETA found was: " + queue.top().toString());
+		System.out.println("Best BETA found was: " + queue.first().toString());
+		if (queue.size() > 5) {
+			TreeSet<TestRecord> temp = new TreeSet<ParameterTesting.TestRecord>();
+			for (TestRecord t : queue) {
+				temp.add(t);
+			}
+			queue = temp;
+		}
 		System.out.println(queue.toString());
 		alphaQueue = queue;
 	}
@@ -134,6 +146,7 @@ public class ParameterTesting {
 			this.nestedAlpha = nestedAlpha;
 		}
 
+		// TODO test with best and avg
 		@Override
 		public int compareTo(TestRecord o) {
 			return Double.compare(best, o.best);
