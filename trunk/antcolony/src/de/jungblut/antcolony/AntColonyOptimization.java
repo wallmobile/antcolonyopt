@@ -14,6 +14,8 @@ import java.util.concurrent.Executors;
 
 public final class AntColonyOptimization {
 
+	// TODO make them final again
+	
 	// greedy
 	public static double ALPHA = -0.5d;
 	// rapid selection
@@ -25,7 +27,7 @@ public final class AntColonyOptimization {
 	public static double INITIAL_PHEROMONES = 0.8d; // can be anything
 
 	// use power of 2
-	public static final int numOfAgents = 512; // 256 is enough
+	public static final int numOfAgents = 512; // TODO can be reduced to 256
 	private static final int poolSize = Runtime.getRuntime().availableProcessors();
 
 	private static final Random random = new Random(System.currentTimeMillis());
@@ -183,11 +185,13 @@ public final class AntColonyOptimization {
 
 		int agentsSend = 0;
 		int agentsDone = 0;
+		int agentsWorking = 0;
 		for (int agentNumber = 0; agentNumber < numOfAgents; agentNumber++) {
 			agentCompletionService.submit(new Agent(this,
 					getGaussianDistributionRowIndex()));
 			agentsSend++;
-			if (agentsSend % poolSize == 0) {
+			agentsWorking++;
+			while (agentsWorking >= poolSize) {
 				WalkedWay way = agentCompletionService.take().get();
 				if (bestDistance == null
 						|| way.distance < bestDistance.distance) {
@@ -197,6 +201,7 @@ public final class AntColonyOptimization {
 									+ way.distance);
 				}
 				agentsDone++;
+				agentsWorking--;
 			}
 		}
 		final int left = agentsSend - agentsDone;
