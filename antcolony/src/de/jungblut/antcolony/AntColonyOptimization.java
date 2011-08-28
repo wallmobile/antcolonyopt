@@ -22,11 +22,11 @@ public final class AntColonyOptimization {
 
 	// heuristic parameters
 	public static final double Q = 0.0001d; // somewhere between 0 and 1
-	public static final double PHEROMONE_PERSISTENCE = 0.1d; // between 0 and 1
+	public static final double PHEROMONE_PERSISTENCE = 0.3d; // between 0 and 1
 	public static final double INITIAL_PHEROMONES = 0.8d; // can be anything
 
 	// use power of 2
-	public static final int numOfAgents = 2048 * 2 * 10;
+	public static final int numOfAgents = 2048 * 20;
 	private static final int poolSize = Runtime.getRuntime()
 			.availableProcessors();
 
