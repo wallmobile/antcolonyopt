@@ -17,16 +17,13 @@ public class SolutionWriter {
 	 * @throws IOException
 	 * @throws NumberFormatException
 	 */
-	public static void main(String[] args) throws NumberFormatException,
-			IOException {
+	public static void main(String[] args) throws NumberFormatException, IOException {
 
-		int[] arr = new int[] { 39, 37, 36, 38, 35, 34, 33, 43, 45, 47, 23, 4,
-				14, 5, 3, 24, 11, 27, 26, 25, 46, 12, 13, 51, 10, 50, 32, 42,
-				9, 8, 7, 40, 18, 44, 31, 48, 0, 21, 30, 17, 2, 16, 20, 22, 19,
-				49, 15, 28, 29, 41, 6, 1 };
+		int[] arr = new int[] { 29, 22, 19, 49, 28, 15, 45, 43, 33, 34, 35, 38, 39, 37, 36, 47, 23,
+				4, 14, 5, 3, 24, 11, 27, 26, 25, 46, 13, 12, 51, 10, 50, 32, 42, 9, 8, 7, 40, 18,
+				44, 31, 48, 0, 21, 30, 17, 2, 16, 20, 41, 6, 1 };
 
-		final BufferedReader br = new BufferedReader(new FileReader(new File(
-				"files/berlin52.tsp")));
+		final BufferedReader br = new BufferedReader(new FileReader(new File("files/berlin52.tsp")));
 
 		final ArrayList<Record> records = new ArrayList<Record>();
 
@@ -40,8 +37,8 @@ public class SolutionWriter {
 
 			if (readAhead) {
 				String[] split = line.split(" ");
-				records.add(new AntColonyOptimization.Record(Double
-						.parseDouble(split[1]), Double.parseDouble(split[2])));
+				records.add(new AntColonyOptimization.Record(Double.parseDouble(split[1]), Double
+						.parseDouble(split[2])));
 			}
 
 			if (line.equals("NODE_COORD_SECTION")) {
@@ -51,8 +48,7 @@ public class SolutionWriter {
 
 		br.close();
 
-		BufferedWriter writer = new BufferedWriter(new FileWriter(new File(
-				"files/my.tsp")));
+		BufferedWriter writer = new BufferedWriter(new FileWriter(new File("files/my.tsp")));
 
 		for (int j = 0; j < arr.length; j++) {
 			int i = arr[j];

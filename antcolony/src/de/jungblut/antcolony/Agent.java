@@ -15,6 +15,9 @@ public final class Agent implements Callable<WalkedWay> {
 	private int toVisit;
 	private final Random random = new Random(System.nanoTime());
 
+	// private final Normal random = new Normal(0.0d, 1.0d, new
+	// MersenneTwister(new Date()));
+
 	public Agent(AntColonyOptimization instance, int start) {
 		super();
 		this.instance = instance;
@@ -30,10 +33,17 @@ public final class Agent implements Callable<WalkedWay> {
 		if (toVisit > 0) {
 			int danglingUnvisited = -1;
 			final double[] weights = new double[visited.length];
+
+			double columnSum = 0.0d;
+			for (int i = 0; i < visited.length; i++) {
+				columnSum += Math.pow(instance.readPheromone(y, i), AntColonyOptimization.ALPHA)
+						* Math.pow(instance.invertedMatrix[y][i], AntColonyOptimization.BETA);
+			}
+
 			double sum = 0.0d;
 			for (int x = 0; x < visited.length; x++) {
 				if (!visited[x]) {
-					weights[x] = calculateProbability(x, y);
+					weights[x] = calculateProbability(x, y, columnSum);
 					sum += weights[x];
 					danglingUnvisited = x;
 				}
@@ -79,20 +89,9 @@ public final class Agent implements Callable<WalkedWay> {
 	 * (pheromones ^ ALPHA) * ((1/length) ^ BETA) divided by the sum of all
 	 * rows.
 	 */
-	private final double calculateProbability(int row, int column) {
-		final double p = Math.pow(instance.readPheromone(column, row),
-				AntColonyOptimization.ALPHA)
-				* Math.pow(instance.invertedMatrix[column][row],
-						AntColonyOptimization.BETA);
-		// TODO this can be calculated once
-		double sum = 0.0d;
-		for (int i = 0; i < visited.length; i++) {
-			sum += Math.pow(instance.readPheromone(column, i),
-					AntColonyOptimization.ALPHA)
-					* Math.pow(instance.invertedMatrix[column][i],
-							AntColonyOptimization.BETA);
-		}
-
+	private final double calculateProbability(int row, int column, double sum) {
+		final double p = Math.pow(instance.readPheromone(column, row), AntColonyOptimization.ALPHA)
+				* Math.pow(instance.invertedMatrix[column][row], AntColonyOptimization.BETA);
 		return p / sum;
 	}
 
