@@ -244,10 +244,18 @@ public final class AntColonyOptimization {
 	public static void main(String[] args) throws IOException, InterruptedException,
 			ExecutionException {
 
-		long start = System.currentTimeMillis();
-		AntColonyOptimization antColonyOptimization = new AntColonyOptimization();
-		antColonyOptimization.start();
-		System.out.println("Took: " + (System.currentTimeMillis() - start) + " ms!");
+		double best = Double.MAX_VALUE;
+		while (best > 7548.0d) {
+
+			long start = System.currentTimeMillis();
+			AntColonyOptimization antColonyOptimization = new AntColonyOptimization();
+			double result = antColonyOptimization.start();
+			System.out.println("Took: " + (System.currentTimeMillis() - start) + " ms!");
+			if (best > result) {
+				best = result;
+				System.out.println("New best result: " + best);
+			}
+		}
 	}
 
 }
