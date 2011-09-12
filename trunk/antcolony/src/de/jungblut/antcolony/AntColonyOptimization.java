@@ -15,6 +15,7 @@ import cern.jet.random.Uniform;
 
 public final class AntColonyOptimization {
 
+	private static String TSP_FILE = "files/berlin52.tsp";
 	// greedy
 	public static final double ALPHA = -0.2d;
 	// rapid selection
@@ -64,11 +65,6 @@ public final class AntColonyOptimization {
 	}
 
 	final double readPheromone(int x, int y) {
-		// double p;
-		// synchronized (mutexes[x][y]) {
-		// p = pheromones[x][y];
-		// }
-		// return p;
 		return pheromones[x][y];
 	}
 
@@ -114,7 +110,7 @@ public final class AntColonyOptimization {
 
 	private final double[][] readMatrixFromFile() throws IOException {
 
-		final BufferedReader br = new BufferedReader(new FileReader(new File("files/berlin52.tsp")));
+		final BufferedReader br = new BufferedReader(new FileReader(new File(TSP_FILE)));
 
 		final LinkedList<Record> records = new LinkedList<Record>();
 
@@ -127,7 +123,7 @@ public final class AntColonyOptimization {
 			}
 
 			if (readAhead) {
-				String[] split = line.trim().split(" ");
+				String[] split = sweepNumbers(line.trim());
 				records.add(new Record(Double.parseDouble(split[1].trim()), Double
 						.parseDouble(split[2].trim())));
 			}
@@ -152,6 +148,29 @@ public final class AntColonyOptimization {
 		}
 
 		return localMatrix;
+	}
+
+	private final String[] sweepNumbers(String trim) {
+		String[] arr = new String[3];
+		int currentIndex = 0;
+		for (int i = 0; i < trim.length(); i++) {
+			final char c = trim.charAt(i);
+			if (((int) c) != 32) {
+				for (int f = i + 1; f < trim.length(); f++) {
+					final char x = trim.charAt(f);
+					if (((int) x) == 32) {
+						arr[currentIndex] = trim.substring(i, f);
+						currentIndex++;
+						break;
+					} else if(f == trim.length() - 1){
+						arr[currentIndex] = trim.substring(i, trim.length());
+						break;
+					}
+				}
+				i = i + arr[currentIndex-1].length();
+			}
+		}
+		return arr;
 	}
 
 	private final double[][] invertMatrix() {
@@ -244,18 +263,16 @@ public final class AntColonyOptimization {
 	public static void main(String[] args) throws IOException, InterruptedException,
 			ExecutionException {
 
-		double best = Double.MAX_VALUE;
-		while (best > 7548.0d) {
-
-			long start = System.currentTimeMillis();
-			AntColonyOptimization antColonyOptimization = new AntColonyOptimization();
-			double result = antColonyOptimization.start();
-			System.out.println("Took: " + (System.currentTimeMillis() - start) + " ms!");
-			if (best > result) {
-				best = result;
-				System.out.println("New best result: " + best);
-			}
+		if (args.length > 0) {
+			AntColonyOptimization.TSP_FILE = args[0];
+			System.out.println("Using " + args[0]);
 		}
+
+		long start = System.currentTimeMillis();
+		AntColonyOptimization antColonyOptimization = new AntColonyOptimization();
+		double result = antColonyOptimization.start();
+		System.out.println("Took: " + (System.currentTimeMillis() - start) + " ms!");
+		System.out.println("Result was: " + result);
 	}
 
 }
